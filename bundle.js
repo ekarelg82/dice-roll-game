@@ -70,14 +70,61 @@
 const state = __webpack_require__(1)
 
 const dieContainer = document.querySelector('.die-container')
-console.log('webpack is working');
+
+function resetGame() {
+  player1.style.left = '10px'
+  player1.style.top = '160px'
+  player2.style.left = '10px'
+  player2.style.top = '250px'
+
+  state.player1.count = 0
+  state.player2.count = 0
+
+  player1.classList.remove('winner')
+  player2.classList.remove('winner')
+
+state.currentPlayer = (Math.random() > .5) ? 'player1' : 'player2'
+
+roll.textContent = '?'
+
+}
+
+function moveWinner() {
+  const winnerCirclePosition = document.querySelector('#winner-circle').getBoundingClientRect()
+
+  state[state.currentPlayer].element.style.top = winnerCirclePosition.top + 'px'
+  state[state.currentPlayer].element.style.left = winnerCirclePosition.left + 'px'
+
+  state[state.currentPlayer].element.classList.add('winner')
+
+setTimeout(function() {
+  alert(`${state.currentPlayer} Is the winner`)
+  if (confirm('Reset the game?')) {
+    resetGame()
+  }
+}, 401)
+
+
+}
+
 function movePlayer(tileNumber) {
-  state.player1.count += tileNumber
+  state[state.currentPlayer].count += tileNumber
 
-  const tilePosition = document.querySelector('#tile' + state.player1.count).getBoundingClientRect()
+  if (state[state.currentPlayer].count > 10) {
+    moveWinner()
+    return
+  }
 
-  player1.style.top = tilePosition.top + 'px'
-  player1.style.left = tilePosition.left + 'px'
+  const tilePosition = document.querySelector('#tile' + state[state.currentPlayer].count).getBoundingClientRect()
+
+  state[state.currentPlayer].element.style.top = tilePosition.top + 'px'
+  state[state.currentPlayer].element.style.left = tilePosition.left + 'px'
+
+  if (state.currentPlayer === 'player1') {
+    state.currentPlayer = 'player2'
+  } else {
+    state.currentPlayer = 'player1'
+  }
 }
 
 dieContainer.addEventListener('click', function() {
@@ -98,11 +145,14 @@ dieContainer.addEventListener('click', function() {
 
 const state = {
   player1: {
-    count: 0
+    count: 0,
+    element: player1
   },
   player2: {
-    count: 0
-  }
+    count: 0,
+    element: player2
+  },
+  currentPlayer: (Math.random() > .5) ? 'player1' : 'player2'
 }
 
 module.exports = state
